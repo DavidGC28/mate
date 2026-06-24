@@ -170,18 +170,18 @@ function filtrarCategoria(categoria, botonPresionado) {
 // ==========================================
 function agregarAlCarrito(id) {
     const productoMenu = menu.find(p => p.id === id);
-    const productoEnCarrito = carrito.find(p => p.id === id);
+    const productoEnCarrito = carrito.find(p => p.producto.id === id);
 
     if (productoEnCarrito) {
         productoEnCarrito.cantidad++;
     } else {
-        carrito.push({ ...productoMenu, cantidad: 1 });
+        carrito.push({ producto: productoMenu, cantidad: 1 });
     }
     actualizarInterfaz();
 }
 
 function cambiarCantidad(id, cambio) {
-    const productoEnCarrito = carrito.find(p => p.id === id);
+    const productoEnCarrito = carrito.find(p => p.producto.id === id);
     if (productoEnCarrito) {
         productoEnCarrito.cantidad += cambio;
         if (productoEnCarrito.cantidad <= 0) {
@@ -193,7 +193,7 @@ function cambiarCantidad(id, cambio) {
 }
 
 function eliminarDelCarrito(id) {
-    carrito = carrito.filter(p => p.id !== id);
+    carrito = carrito.filter(p => p.productop.id !== id);
     actualizarInterfaz();
 }
 
@@ -206,8 +206,9 @@ function actualizarInterfaz() {
 
     let subtotal = 0;
 
-    carrito.forEach(item => {
-        const totalItem = item.precio * item.cantidad;
+    carrito.forEach(itemCarrito => {
+        const item = itemCarrito.producto;
+        const totalItem = item.precio * itemCarrito.cantidad;
         subtotal += totalItem;
 
         const fila = document.createElement('tr');
@@ -216,7 +217,7 @@ function actualizarInterfaz() {
             <td>
                 <div class="cart-controls">
                     <button class="btn btn-qty" id="btn-menos-${item.id}">-</button>
-                    <span>${item.cantidad}</span>
+                    <span>${itemCarrito.cantidad}</span>
                     <button class="btn btn-qty" id="btn-mas-${item.id}">+</button>
                 </div>
             </td>
@@ -250,21 +251,27 @@ function procesarPago() {
         return;
     }
 
+    const nuevaFactura = {
+        numero: historialVentas.length + 1,
+        subtotal: 0,
+        iva: 0,
+        total: 0,
+        pedido: carrito
+    };
+
     // Cálculos numéricos para la transacción histórica
-    let subtotal = carrito.reduce((acc, item) => acc + (item.precio * item.cantidad), 0);
+    let subtotal =  nuevaFactura.pedido.reduce((acc, item) => acc + (item.producto.precio * item.cantidad), 0);
     let totalIva = subtotal * porcentajeIva;
     let totalFinal = subtotal + totalIva;
 
     // Guardar el ticket u objeto factura en el historial (Arreglo global)
-    const nuevaFactura = {
-        numero: historialVentas.length + 1,
-        subtotal: subtotal.toFixed(2),
-        iva: totalIva.toFixed(2),
-        total: totalFinal.toFixed(2)
-    };
+    nuevaFactura.subtotal = subtotal.toFixed(2);
+    nuevaFactura.iva = totalIva.toFixed(2);
+    nuevaFactura.total = totalFinal.toFixed(2);
+
     historialVentas.push(nuevaFactura);
 
-    alert(`🎉 Venta #${nuevaFactura.numero} completada con éxito.`);
+    alert(`🎉 Venta #${nuevaFactura.numero} completada con éxito. ${nuevaFactura.pedido.map(item => `${item.producto.nombre} x${item.cantidad}`).join(', ')}` );
     
     // Resetear Caja y refrescar interfaces
     carrito = [];
