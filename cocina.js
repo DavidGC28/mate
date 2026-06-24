@@ -34,13 +34,16 @@ const labelIva = document.getElementById('labelIva');
 // ==========================================
 // 2. SISTEMA DE NAVEGACIÓN INTERNA (SPA)
 // ==========================================
-function mostrarSeccion(idSeccion) {
+function mostrarSeccion(idSeccion, boton) {
     // Busca todas las secciones y les quita la clase 'activa'
     const secciones = document.querySelectorAll('section');
+    const botonesNavegacion = document.querySelectorAll('button.btn-nav');
     secciones.forEach(sec => sec.classList.remove('activa'));
+    botonesNavegacion.forEach(sec => sec.classList.remove('activo'));
 
     // Agrega la clase activa únicamente a la sección seleccionada
     document.getElementById(idSeccion).classList.add('activa');
+    document.getElementById(boton.id).classList.add('activo');
 }
 
 // ==========================================
