@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>POS Restaurante - Panel Lateral</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f4f7f6;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* CONTENEDOR PRINCIPAL */
+        .dashboard-container {
+            display: flex;
+            width: 100%;
+        }
+
+        /* MENÚ DE NAVEGACIÓN LATERAL (SIDEBAR) */
+        .menu-navegacion {
+            width: 260px;
+            background: #212529;
+            padding: 20px 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            position: fixed;
+            height: 100vh;
+            left: 0;
+            top: 0;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+        }
+
+        .brand-pos {
+            color: #ff6b6b;
+            font-size: 1.4rem;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #343a40;
+        }
+
+        .btn-nav {
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            padding: 12px 15px;
+            text-align: left;
+            background-color: transparent;
+            color: #c1c7cd;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+
+        .btn-nav:hover {
+            background-color: #343a40;
+            color: white;
+        }
+
+        .btn-nav.activo {
+            background-color: #ff6b6b;
+            color: white;
+        }
+
+        /* ÁREA DE CONTENIDO (Derecha) */
+        .contenido-principal {
+            margin-left: 260px;
+            padding: 30px;
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* CONTROL DE VISIBILIDAD DE SECCIONES */
+        section {
+            display: none !important;
+            width: 100%;
+            max-width: 900px;
+        }
+
+        section.activa {
+            display: block !important;
+        }
+
+        /* ESTILOS DE COMPONENTES INTERNOS */
+        .tarjeta-contenedor {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        h2 {
+            margin-bottom: 25px;
+            border-bottom: 2px solid #ff6b6b;
+            padding-bottom: 8px;
+            color: #333;
+        }
+
+        h5 { margin: 15px 0 6px 0; color: #495057; }
+
+        input[type="number"], input[type="text"], select {
+            padding: 10px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .btn-accion {
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            padding: 10px 20px;
+            transition: background 0.2s;
+        }
+
+        .btn-primario { background-color: #ff6b6b; color: white; }
+        .btn-primario:hover { background-color: #fa5252; }
+        .btn-exito { background-color: #12b886; color: white; }
+        .btn-exito:hover { background-color: #0ca678; }
+
+        /* Pestañas de Filtros de Categorías */
+        .categories-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            background-color: #e9ecef;
+            color: #495057;
+            padding: 8px 18px;
+            border-radius: 20px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .tab-btn.active {
+            background-color: #ff6b6b;
+            color: white;
+        }
+
+        .grid-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .item-menu {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border: 1px solid #eee;
+            border-radius: 6px;
+            background: #fff;
+        }
+
+        .item-menu:hover { background-color: #fff5f5; }
+
+        /* Estilos visuales para platos bloqueados */
+        .item-menu.desactivado {
+            background-color: #f1f3f5 !important;
+            opacity: 0.6;
+            border-left: 4px solid #ced4da;
+        }
+
+        /* NUEVOS ESTILOS PARA LA SECCIÓN DE CONCEPTOS */
+        .grid-conceptos {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .tarjeta-concepto {
+            background: #f8f9fa;
+            border-left: 4px solid #ff6b6b;
+            padding: 15px;
+            border-radius: 4px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .tarjeta-concepto:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .tarjeta-concepto h3 {
+            color: #212529;
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+        }
+
+        .tarjeta-concepto p {
+            color: #6c757d;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        /* Tablas */
+        .tabla-contenedor {
+            margin-top: 20px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 14px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        th { background-color: #f8f9fa; color: #495057; }
+
+        .cart-controls { display: flex; gap: 8px; align-items: center; }
+        .btn-qty { background-color: #e9ecef; color: #333; width: 28px; height: 28px; border: none; cursor: pointer; border-radius: 4px; font-weight: bold;}
+        .btn-qty:hover { background-color: #dee2e6; }
+        .btn-delete { background-color: #ffe3e3; color: #e03131; padding: 6px 12px; border: none; cursor: pointer; border-radius: 4px; font-weight: bold;}
+        .btn-delete:hover { background-color: #ffc9c9; }
+
+        .totales-caja {
+            margin-top: 25px;
+            padding-top: 15px;
+            border-top: 2px solid #333;
+            max-width: 320px;
+            margin-left: auto;
+        }
+
+        .fila-total { display: flex; justify-content: space-between; margin-bottom: 10px; }
+        .total-final { font-size: 1.3rem; font-weight: bold; color: #e03131; }
+        .mensaje-estado { color: #2b8a3e; font-weight: bold; margin-top: 5px; }
+
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            .menu-navegacion { width: 100%; height: auto; position: relative; }
+            .contenido-principal { margin-left: 0; padding: 15px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-container">
+        
+        <nav class="menu-navegacion">
+            <div class="brand-pos">🍳 RestoPOS</div>
+            <button class="btn-nav activo" id="btn-nav-parametros" onclick="mostrarSeccion('parametros', this)">⚙️ Parámetros IVA</button>
+            <button class="btn-nav" id="btn-nav-seccionAgregar" onclick="mostrarSeccion('seccionAgregar', this)">➕ Agregar Productos</button>
+            <button class="btn-nav" id="btn-nav-seccionMenu" onclick="mostrarSeccion('seccionMenu', this)">🍟 Menú Disponible</button>
+            <button class="btn-nav" id="btn-nav-seccionPedido" onclick="mostrarSeccion('seccionPedido', this)">🧾 Tu Pedido (Caja)</button>
+            <button class="btn-nav" id="btn-nav-historialVentas" onclick="mostrarSeccion('historialVentas', this)">📈 Historial Ventas</button>
+            <button class="btn-nav" id="btn-nav-seccionConceptos" onclick="mostrarSeccion('seccionConceptos', this)">📖 Conceptos Clave</button>
+        </nav>
+
+        <main class="contenido-principal">
+
+            <section id="parametros" class="activa">
+                <div class="tarjeta-contenedor">
+                    <h2>Configuración del Impuesto</h2>
+                    <h5>Tasa de IVA (%)</h5>
+                    <input type="number" id="tasaIva" min="0" max="25" value="12"/>
+                    <br>
+                    <button class="btn-accion btn-primario" onclick="guardarIva();">Guardar IVA</button>
+                    <p id="mensajeIva" class="mensaje-estado"></p>
+                </div>
+            </section>
+
+            <section id="seccionAgregar">
+                <div class="tarjeta-contenedor">
+                    <h2>➕ Agregar Nuevo Producto al Menú</h2>
+                    <form id="form-nuevo-producto" style="display: flex; flex-direction: column; gap: 15px; max-width: 400px; margin-top: 15px;">
+                        <div>
+                            <label style="margin-bottom: 5px; font-weight: bold; color: #495057; display: block;">Nombre del Producto</label>
+                            <input type="text" id="nuevo-nombre" placeholder="Ej. Hamburguesa Triple" required style="max-width: 100%;">
+                        </div>
+                        <div>
+                            <label style="margin-bottom: 5px; font-weight: bold; color: #495057; display: block;">Precio ($)</label>
+                            <input type="number" id="nuevo-precio" step="0.01" min="0.01" placeholder="0.00" required style="max-width: 100%;">
+                        </div>
+                        <div>
+                            <label style="margin-bottom: 5px; font-weight: bold; color: #495057; display: block;">Categoría</label>
+                            <select id="nueva-categoria" required style="width: 100%; max-width: 300px;">
+                                <option value="comida">Comida</option>
+                                <option value="bebida">Bebida</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn-accion btn-primario" style="align-self: flex-start;">Guardar Ítem</button>
+                    </form>
+                </div>
+            </section>
+
+            <section id="seccionMenu">
+                <div class="tarjeta-contenedor">
+                    <h2>🍟 Menú del Restaurante</h2>
+                    <div class="categories-tabs">
+                        <button class="tab-btn active" onclick="filtrarCategoria('todos', this)">Todos</button>
+                        <button class="tab-btn" onclick="filtrarCategoria('comida', this)">Comidas</button>
+                        <button class="tab-btn" onclick="filtrarCategoria('bebida', this)">Bebidas</button>
+                    </div>
+                    <div id="contenedor-menu" class="grid-menu"></div>
+                </div>
+            </section>
+
+            <section id="seccionPedido">
+                <div class="tarjeta-contenedor">
+                    <h2>🧾 Caja y Cobro de Pedidos</h2>
+                    <div class="tabla-contenedor">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Cantidad</th>
+                                    <th>Precio Unitario</th>
+                                    <th>Total Ítem</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaCarrito"></tbody>
+                        </table>
+                    </div>
+
+                    <div class="totales-caja">
+                        <div class="fila-total">
+                            <span>Subtotal:</span>
+                            <span id="subtotal">$0.00</span>
+                        </div>
+                        <div class="fila-total">
+                            <span id="labelIva">IVA (12%):</span>
+                            <span id="iva">$0.00</span>
+                        </div>
+                        <div class="fila-total total-final">
+                            <span>Total a Pagar:</span>
+                            <span id="total">$0.00</span>
+                        </div>
+                        <button class="btn-accion btn-exito" style="width: 100%; margin-top: 10px; font-size: 1rem;" onclick="procesarPago();">Procesar Venta</button>
+                    </div>
+                </div>
+            </section>
+
+            <section id="historialVentas">
+                <div class="tarjeta-contenedor">
+                    <h2>📈 Registro de Facturas Cobradas</h2>
+                    <div class="tabla-contenedor">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Nro. Factura</th>
+                                    <th>Subtotal</th>
+                                    <th>IVA Cobrado</th>
+                                    <th>Total General</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaHistorial"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section id="seccionConceptos">
+                <div class="tarjeta-contenedor">
+                    <h2>📖 Conceptos y Definiciones Financieras</h2>
+                    <p style="color: #6c757d; margin-bottom: 20px;">Guía educativa para entender la administración de costos del establecimiento.</p>
+                    
+                    <div class="grid-conceptos">
+                        <div class="tarjeta-concepto">
+                            <h3>Costos Fijos</h3>
+                            <p>Gastos que el restaurante debe pagar obligatoriamente todos los meses, sin importar si vende mucho o no vende nada. Ejemplos: El arriendo del local, internet y servicios básicos.</p>
+                        </div>
+                        <div class="tarjeta-concepto">
+                            <h3>Costos Variables</h3>
+                            <p>Gastos que cambian directamente según el volumen de ventas o producción. Si vendes más hamburguesas, gastas más dinero en estos elementos. Ejemplo: Envases para llevar, servilletas adicionales.</p>
+                        </div>
+                        <div class="tarjeta-concepto">
+                            <h3>Costos Directos</h3>
+                            <p>Gastos vinculados por completo a la elaboración de un plato específico, siendo sumamente fáciles de medir e identificar. Ejemplo: El pan y la carne de una hamburguesa.</p>
+                        </div>
+                        <div class="tarjeta-concepto">
+                            <h3>Costos Indirectos</h3>
+                            <p>Gastos necesarios para que el restaurante funcione, pero que no se pueden asignar con exactitud a un solo plato. Ejemplos: El detergente para lavar los platos, el gas de la cocina general.</p>
+                        </div>
+                        <div class="tarjeta-concepto">
+                            <h3>Costo Materia Prima</h3>
+                            <p>El valor económico total de todos los ingredientes e insumos necesarios que componen directamente las recetas de los platos y bebidas que se sirven.</p>
+                        </div>
+                        <div class="tarjeta-concepto">
+                            <h3>Mano de Obra</h3>
+                            <p>El costo financiero del esfuerzo humano en el restaurante. Incluye los sueldos, salarios y beneficios del personal de cocina (chefs) y salón (meseros).</p>
+                        </div>
+                        <div class="tarjeta-concepto">
+                            <h3>Costeo de Recetas</h3>
+                            <p>El proceso detallado de calcular centavo a centavo cuánto cuesta producir un solo plato en base a las porciones e ingredientes exactos de su receta estándar.</p>
+                        </div>
+                        <div class="tarjeta-concepto">
+                            <h3>Margen de Ganancia</h3>
+                            <p>La diferencia porcentual o monetaria entre el precio de venta de un plato y el costo total que tomó prepararlo. Es la rentabilidad neta que le queda al negocio.</p>
+                        </div>
+                        <div class="tarjeta-concepto">
+                            <h3>Punto de Equilibrio</h3>
+                            <p>El nivel exacto de ventas en el que los ingresos totales igualan a los costos totales del restaurante. En este punto el negocio no genera pérdidas pero tampoco utilidades.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script src="cocina.js"></script>
+</body>
+</html>
