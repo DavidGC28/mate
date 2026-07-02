@@ -85,7 +85,7 @@
         section {
             display: none !important;
             width: 100%;
-            max-width: 900px;
+            max-width: 1200px;
         }
 
         section.activa {
@@ -100,6 +100,14 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
 
+        /* DISEÑO DE LA VISTA DE PEDIDOS UNIFICADA */
+        .contenedor-pedidos-unificado {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            align-items: start;
+        }
+
         h2 {
             margin-bottom: 25px;
             border-bottom: 2px solid #ff6b6b;
@@ -109,13 +117,30 @@
 
         h5 { margin: 15px 0 6px 0; color: #495057; }
 
-        input[type="number"], input[type="text"], select {
+        input[type="number"], input[type="text"], input[type="email"], select {
             padding: 10px 12px;
             border: 1px solid #ced4da;
             border-radius: 4px;
             margin-bottom: 15px;
             width: 100%;
             max-width: 300px;
+        }
+
+        /* Estilo específico para formularios de ingreso a dos columnas */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            max-width: 600px;
+            margin-top: 15px;
+        }
+        
+        .form-grid .full-width {
+            grid-column: span 2;
+        }
+        
+        .form-grid input {
+            max-width: 100% !important;
         }
 
         .btn-accion {
@@ -172,14 +197,13 @@
 
         .item-menu:hover { background-color: #fff5f5; }
 
-        /* Estilos visuales para platos bloqueados */
         .item-menu.desactivado {
             background-color: #f1f3f5 !important;
             opacity: 0.6;
             border-left: 4px solid #ced4da;
         }
 
-        /* NUEVOS ESTILOS PARA LA SECCIÓN DE CONCEPTOS */
+        /* SECCIÓN DE CONCEPTOS */
         .grid-conceptos {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -249,6 +273,12 @@
         .total-final { font-size: 1.3rem; font-weight: bold; color: #e03131; }
         .mensaje-estado { color: #2b8a3e; font-weight: bold; margin-top: 5px; }
 
+        @media (max-width: 992px) {
+            .contenedor-pedidos-unificado { grid-template-columns: 1fr; }
+            .form-grid { grid-template-columns: 1fr; }
+            .form-grid .full-width { grid-column: span 1; }
+        }
+
         @media (max-width: 768px) {
             body { flex-direction: column; }
             .menu-navegacion { width: 100%; height: auto; position: relative; }
@@ -264,8 +294,8 @@
             <div class="brand-pos">🍳 RestoPOS</div>
             <button class="btn-nav activo" id="btn-nav-parametros" onclick="mostrarSeccion('parametros', this)">⚙️ Parámetros IVA</button>
             <button class="btn-nav" id="btn-nav-seccionAgregar" onclick="mostrarSeccion('seccionAgregar', this)">➕ Agregar Productos</button>
-            <button class="btn-nav" id="btn-nav-seccionMenu" onclick="mostrarSeccion('seccionMenu', this)">🍟 Menú Disponible</button>
-            <button class="btn-nav" id="btn-nav-seccionPedido" onclick="mostrarSeccion('seccionPedido', this)">🧾 Tu Pedido (Caja)</button>
+            <button class="btn-nav" id="btn-nav-seccionClientes" onclick="mostrarSeccion('seccionClientes', this)">👤 Registrar Clientes</button>
+            <button class="btn-nav" id="btn-nav-seccionPedidos" onclick="mostrarSeccion('seccionPedidos', this)">🛒 Pedidos</button>
             <button class="btn-nav" id="btn-nav-historialVentas" onclick="mostrarSeccion('historialVentas', this)">📈 Historial Ventas</button>
             <button class="btn-nav" id="btn-nav-seccionConceptos" onclick="mostrarSeccion('seccionConceptos', this)">📖 Conceptos Clave</button>
         </nav>
@@ -307,51 +337,91 @@
                 </div>
             </section>
 
-            <section id="seccionMenu">
+            <section id="seccionClientes">
                 <div class="tarjeta-contenedor">
-                    <h2>🍟 Menú del Restaurante</h2>
-                    <div class="categories-tabs">
-                        <button class="tab-btn active" onclick="filtrarCategoria('todos', this)">Todos</button>
-                        <button class="tab-btn" onclick="filtrarCategoria('comida', this)">Comidas</button>
-                        <button class="tab-btn" onclick="filtrarCategoria('bebida', this)">Bebidas</button>
-                    </div>
-                    <div id="contenedor-menu" class="grid-menu"></div>
+                    <h2>👤 Registrar Nuevo Cliente</h2>
+                    <form id="form-nuevo-cliente">
+                        <div class="form-grid">
+                            <div>
+                                <label style="margin-bottom: 5px; font-weight: bold; color: #495057; display: block;">Nombre</label>
+                                <input type="text" id="cliente-nombre" placeholder="Ej. Juan" required>
+                            </div>
+                            <div>
+                                <label style="margin-bottom: 5px; font-weight: bold; color: #495057; display: block;">Apellido</label>
+                                <input type="text" id="cliente-apellido" placeholder="Ej. Pérez" required>
+                            </div>
+                            <div>
+                                <label style="margin-bottom: 5px; font-weight: bold; color: #495057; display: block;">Cédula / ID</label>
+                                <input type="text" id="cliente-cedula" placeholder="Ej. 1726354890" required>
+                            </div>
+                            <div>
+                                <label style="margin-bottom: 5px; font-weight: bold; color: #495057; display: block;">Correo Electrónico</label>
+                                <input type="email" id="cliente-correo" placeholder="ejemplo@correo.com" required>
+                            </div>
+                            <div class="full-width">
+                                <label style="margin-bottom: 5px; font-weight: bold; color: #495057; display: block;">Dirección</label>
+                                <input type="text" id="cliente-direccion" placeholder="Ej. Av. Amazonas N32 y Coreas" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-accion btn-exito" style="margin-top: 20px;">Guardar Cliente</button>
+                    </form>
                 </div>
             </section>
 
-            <section id="seccionPedido">
-                <div class="tarjeta-contenedor">
-                    <h2>🧾 Caja y Cobro de Pedidos</h2>
-                    <div class="tabla-contenedor">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Producto</th>
-                                    <th>Cantidad</th>
-                                    <th>Precio Unitario</th>
-                                    <th>Total Ítem</th>
-                                    <th>Acción</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tablaCarrito"></tbody>
-                        </table>
+            <section id="seccionPedidos">
+                <div class="contenedor-pedidos-unificado">
+                    
+                    <div class="tarjeta-contenedor">
+                        <h2>🍟 Menú del Restaurante</h2>
+                        <div class="categories-tabs">
+                            <button class="tab-btn active" onclick="filtrarCategoria('todos', this)">Todos</button>
+                            <button class="tab-btn" onclick="filtrarCategoria('comida', this)">Comidas</button>
+                            <button class="tab-btn" onclick="filtrarCategoria('bebida', this)">Bebidas</button>
+                        </div>
+                        <div id="contenedor-menu" class="grid-menu"></div>
                     </div>
 
-                    <div class="totales-caja">
-                        <div class="fila-total">
-                            <span>Subtotal:</span>
-                            <span id="subtotal">$0.00</span>
-                        </div>
-                        <div class="fila-total">
-                            <span id="labelIva">IVA (12%):</span>
-                            <span id="iva">$0.00</span>
-                        </div>
-                        <div class="fila-total total-final">
-                            <span>Total a Pagar:</span>
-                            <span id="total">$0.00</span>
-                        </div>
-                        <button class="btn-accion btn-exito" style="width: 100%; margin-top: 10px; font-size: 1rem;" onclick="procesarPago();">Procesar Venta</button>
-                    </div>
+                  <div class="tarjeta-contenedor">
+    <h2>🧾 Caja y Cobro de Pedidos</h2>
+    
+    <div style="margin-bottom: 20px; background: #f8f9fa; padding: 15px; border-radius: 6px; border: 1px solid #e9ecef;">
+        <label style="display: block; font-weight: bold; margin-bottom: 8px; color: #495057;">👤 Asignar Cliente al Pedido:</label>
+        <select id="select-cliente-pedido" onchange="seleccionarClienteCaja(this.value)" style="max-width: 100%; width: 100%; margin-bottom: 0;">
+            <option value="cf">Consumidor Final (Sin Descuento)</option>
+        </select>
+    </div>
+
+    <div class="tabla-contenedor">
+        <table>
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>Precio</th>
+                    <th>Total</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody id="tablaCarrito"></tbody>
+        </table>
+    </div>
+
+    <div class="totales-caja">
+        <div class="fila-total">
+            <span>Subtotal:</span>
+            <span id="subtotal">$0.00</span>
+        </div>
+        <div class="fila-total">
+            <span id="labelIva">IVA (12%):</span>
+            <span id="iva">$0.00</span>
+        </div>
+        <div class="fila-total total-final">
+            <span>Total a Pagar:</span>
+            <span id="total">$0.00</span>
+        </div>
+        <button class="btn-accion btn-exito" style="width: 100%; margin-top: 10px; font-size: 1rem;" onclick="procesarPago();">Procesar Venta</button>
+    </div>
+</div>
                 </div>
             </section>
 
